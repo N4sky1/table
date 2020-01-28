@@ -39,14 +39,9 @@ class App extends React.Component {
         }
         return result
     }
-    closePopup = () => {
-        this.setState(() => {
-            return {
-                popup: false,
-            }
-        })
-    }
+
     clickSpan = (data) => {
+        console.log(data.Value)
         this.setState((state) => {
             return {
                 popup: true,
@@ -55,8 +50,14 @@ class App extends React.Component {
         })
         this.forceUpdate()
     }
-
-    addSpan = (bool) => {
+    closePopup = () => {
+        this.setState(state => {
+            return {
+                popup: false
+            }
+        })
+    }
+    addSpan = () => {
         let values = this.getData(Data.Children, 'value')
         let color = this.spanColor
         let size = this.spanSize
@@ -69,46 +70,22 @@ class App extends React.Component {
             "Children": [] 
         }
         
-        let changeItem;
-        let changeItemChildren;
-        const getObj = () => {
-            
-            
-            const recursion = (items) => {
-                items.map((item, idx) => {
+
+        function getObj() {
+            recursion(Data.Children)
+            function recursion(items) {
+                items.forEach(item => {
                     if (item.Value == spanNumber) {
-                       if(bool) {
-                           item.Children = update(item.Children, {$push: [newSpan]})
-                       } else {
-                           if(spanNumber <= Data.Children.length ) {
-                                Data.Children = update(Data.Children, {$set: [
-                                ...Data.Children.slice(0, idx),
-                                ...Data.Children.slice(idx + 1)
-                            ]}) 
-                            this.closePopup()
-                           } else {
-                               changeItem = item.parrent
-                                changeItemChildren = update(items, {$set: [
-                                    ...items.slice(0, idx),
-                                    ...items.slice(idx + 1)
-                                ]})  
-                           }
-                            
-                       }
+                       // item.Children = [...item.Children, newSpan] 
+                       item.Children = update(item.Children, {$push: [newSpan]})
                     }
                     if (item.Children && item.Children.length) { 
                         recursion(item.Children)
                     }
                 })
             }
-            recursion(Data.Children)
         }
         getObj()
-
-       if(changeItem) {
-        changeItem.Children = update(changeItem.Children, {$set: changeItemChildren})
-        this.closePopup()
-       }
         this.forceUpdate()
     }
 	render() {
@@ -123,7 +100,6 @@ class App extends React.Component {
                 spanColor={this.spanColor}
                 spanSize={this.spanSize}
                 addSpan={this.addSpan}
-                deleteSpan={this.deleteSpan}
                 colors={Array.from(new Set(this.getData(Data.Children, 'color')))}
                 />
             </div>
